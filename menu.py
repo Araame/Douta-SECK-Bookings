@@ -42,7 +42,7 @@ class Menu:
                         for book in self.db.select_user_bookings(user["id_staff"]):
                             print(book)
                     case "3":
-                        if self.bm.cancel_booking():
+                        if self.db.cancel_booking():
                             print("Booking cancelled")
                         
                     case "4":
@@ -59,7 +59,7 @@ class Menu:
                 "5. Cancel a booking \n" \
                 "6. Create a slot \n" \
                 "7. Show slots \n" \
-                "8. Generate CSV file"
+                "8. Generate CSV file \n" \
                 "0. Log out \n")
 
                 choice = input("\nChoice :")
@@ -73,8 +73,7 @@ class Menu:
                         for book in self.db.select_all_bookings():
                             print(book)
                     case "4":
-                        for slot in self.bm.show_free_slots():
-                            print(slot)
+                        self.bm.show_free_slots()
                     case "5":
                         self.db.cancel_booking()
                     case "6":
