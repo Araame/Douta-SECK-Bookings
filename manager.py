@@ -1,9 +1,6 @@
 import csv
 import re
 from datetime import datetime
-from slot import Slots
-from event import Event
-from booking import Booking
 from db import DatabaseManager
 
 class Booking_manager:
@@ -17,21 +14,21 @@ class Booking_manager:
                 return user_input
             print(f"Errorr : {error_msg}")
 
+
     def create_event_type(self):
         event_type = self._get_valid_input(
-            "Event's type : ", 
-            r"^[a-zA-Z\s\-]$", 
-            "Letters only"
+            "Event's type : ", r"^[a-zA-Z\s\-]$","Letters only"
         )
         self.db.insert_event_type(event_type)
+
+
 
     def make_booking(self, user_id):
         motif = self._get_valid_input(
             "Motif : ", r"^.{5,500}$", "Letters only"
         )
         
-        slots = self.db.select_slots()
-        print(slots)
+        self.show_slots()
         slot_id = self._get_valid_input("Slot ID : ", r"^\d+$", "Numbers only")
         
         events = self.db.select_events_type()
@@ -51,26 +48,46 @@ class Booking_manager:
     def show_free_slots(self):
         try:
             date = self._get_valid_input(
-                "Date (YYYY-MM-DD) : ", 
-                r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$", 
-                "Format YYYY-MM-DD."
+                "Date (YYYY-MM-DD) : ", r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$", "Format YYYY-MM-DD."
             )
-            free_slots = self.db.free_slots(date)
-            if free_slots:
-                for slot in free_slots:
-                    print(slot)
+            if datetime.strptime(date, "%Y-%m-%d").date() < datetime.now().date():
+                print("Invalid date.")
             else:
-                print("No available slots")
+                free_slots = self.db.free_slots(date)
+                if free_slots:
+                    for slot in free_slots:
+                        print(f"Slot : {slot["moment"]}")
+                else:
+                    print("No available slots")
         except Exception as e:
             print(f"Error : {e}")
+
 
     def show_user_bookings(self, id):
         my_bookings = self.db.select_user_bookings(id)
         if my_bookings:
-            for my_booking in my_bookings:
-                print(my_booking)
+            for booking in my_bookings:
+                print(f'{booking["id_booking"]}. Motif : {booking["motif"]} | Date : {booking["date"].strftime("%Y-%m-%d %H:%M:%S")}')                    
+
         else:
             print("No booking")
+
+
+    def show_slots(self):
+        slots = self.db.select_slots()
+        if slots:
+            for slot in slots:
+                print(f"Slot : {slot["moment"]}")
+        else:
+            print("No slots")
+
+    def show_events(self):
+        events = self.db.select_events_type()
+        if events:
+            for event in events:
+                print(f"{event["id_event"]}. {event["type_event"]}")
+        else:
+            print("No event type")
 
     def create_slot(self):
         moment = self._get_valid_input("Moment : ", r"^[a-zA-Z\s]+$", "Letters only.")
@@ -86,7 +103,7 @@ class Booking_manager:
             print(f"Error : {e}")
 
     def cancel_booking(self):
-        booking_id = self._get_valid_input("ID : ", r"^\d+$", "Chiffres uniquement.")
+        booking_id = self._get_valid_input("ID : ", r"^\d+$", "Numbers only")
         try:
             self.db.cancel_booking(int(booking_id))
             print(f"Booking {booking_id} cancelled!")
@@ -103,8 +120,12 @@ class Booking_manager:
                 writer = csv.DictWriter(file, fieldnames=fields)
                 writer.writeheader()
                 for row in content:
-                    filtered_row = {k: row[k] for k in fields if k in row}
-                    writer.writerow(filtered_row)
+                    writer.writerow(row)
             print("File created")
+            return True
         except Exception as e:
             print(f"Error : {e}")
+
+
+bm = Booking_manager()
+bm.generate_csv()
