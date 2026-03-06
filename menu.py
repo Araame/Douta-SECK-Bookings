@@ -1,7 +1,10 @@
 from auth import Auth
-from manager import Booking_manager
 from slot import Slots
+from mail import Email
 from db import DatabaseManager
+from datetime import datetime
+from manager import Booking_manager
+
 
 class Menu:
     def __init__(self):
@@ -38,9 +41,11 @@ class Menu:
                 match choice :
                     case "1":
                         self.bm.make_booking(user["id_staff"])
+                        mail = Email()
+                        mail.send_email(user["email"])
                     case "2":
-                        for book in self.db.select_user_bookings(user["id_staff"]):
-                            print(book)
+                        for booking in self.db.select_user_bookings(user["id_staff"]):
+                            print(f'{booking["id_booking"]}. Motif : {booking["motif"]} | Date : {booking["date"].strftime("%Y-%m-%d %H:%M:%S")}')                    
                     case "3":
                         if self.db.cancel_booking():
                             print("Booking cancelled")
@@ -70,8 +75,8 @@ class Menu:
                     case "2":
                         self.bm.show_user_bookings(user["id_staff"])
                     case "3":
-                        for book in self.db.select_all_bookings():
-                            print(book)
+                        for booking in self.db.select_all_bookings():
+                            print(f'{booking["id_booking"]}. Motif : {booking["motif"]} | Date : {booking["date"].strftime("%Y-%m-%d %H:%M:%S")}')                    
                     case "4":
                         self.bm.show_free_slots()
                     case "5":

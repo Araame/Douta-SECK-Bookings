@@ -120,7 +120,9 @@ class Booking_manager:
                 writer = csv.DictWriter(file, fieldnames=fields)
                 writer.writeheader()
                 for row in content:
-                    writer.writerow(row)
+                    for k in fields:
+                        if k in row:
+                            writer.writerow(row)
             print("File created")
             return True
         except Exception as e:
