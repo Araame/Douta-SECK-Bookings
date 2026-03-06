@@ -21,4 +21,3 @@ def send_email(receiver, subject, content):
         except Exception as e:
             print("Error :", e)
 
-send_email("arame010dieng@gmail.com", "Booking", "You have booked for DOUTA SECK")
